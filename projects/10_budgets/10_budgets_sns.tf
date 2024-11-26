@@ -108,7 +108,7 @@ resource "aws_budgets_budget" "monthly_actual_sns" {
   time_unit    = "MONTHLY"
 
   notification {
-    comparison_operator       = "GREATER_THAN"
+    comparison_operator       = "EQUAL_TO"
     threshold                 = 100
     threshold_type            = "PERCENTAGE"
     notification_type         = "ACTUAL"
