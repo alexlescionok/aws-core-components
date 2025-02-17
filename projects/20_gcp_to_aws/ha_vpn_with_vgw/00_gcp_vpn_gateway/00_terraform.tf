@@ -31,5 +31,5 @@ terraform {
 ###################################### Providers ######################################
 provider "google" {
   region  = local.gcp_default_region
-  project = local.gcp_projects.id
+  project = local.gcp_project.id
 }
