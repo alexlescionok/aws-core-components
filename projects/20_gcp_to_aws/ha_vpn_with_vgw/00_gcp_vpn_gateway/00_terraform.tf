@@ -3,8 +3,9 @@ locals {
   gcp_default_region = "REPLACE_ME"
 
   gcp_project = {
-    name = "REPLACE_ME"
-    id   = "REPLACE_ME"
+    name    = "REPLACE_ME"
+    id      = "REPLACE_ME"
+    network = "REPLACE_ME"
   }
 }
 

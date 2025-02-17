@@ -1,7 +1,7 @@
 locals {
   /*
   See here for mapping GCP interfaces to AWS S2S IPs (for HA where 4 Tunnels are used): https://cloud.google.com/network-connectivity/docs/vpn/how-to/connect-ha-vpn-aws-peer-gateway#havpn-aws-peer
-  Cloud Router will dynamically provision routes to the dedicated VGW VPC (region-routing AWS account); if there are 4 tunnels, it will provision 2 routes - 1 to per Cloud VPN Gateway interface
+  Cloud Router will dynamically provision routes to the dedicated VGW VPC; if there are 4 tunnels, it will provision 2 routes - 1 per Cloud VPN Gateway interface
   If 1 of the tunnels goes down, Cloud Router will dynamically provision a new route from the Cloud VPN Gateway interface where the tunnel went down - if tunnel-0 (running on interface 0) goes down, it'll be replaced by tunnel-1 (running on interface 0)
   If 2 tunnels go down on the same interface (attached to 1 Site-to-Site VPN), Cloud Router does not create an additional route on the healthy interface, e.g. if tunnel-0 and tunnel-1 (both running on interface 0) go down, and we have a route via tunnel-2 (running on interface 1), Cloud Router will not create an additional route via tunnel-3 (running on interface 1)
   If 3 tunnels go down, and both dynamic routes are affected, Cloud Router will create a new dynamic route via the tunnel that has not been affected, e.g. if tunnel-0 and tunnel-1 (both running on interface 0) and tunnel-2 (running on interface 1) go down, Cloud Router will provision a route via tunnel-3 (running on interface 1)
