@@ -1,6 +1,12 @@
 locals {
   /*
-  See here for mapping GCP interfaces to AWS S2S IPs (for HA where 4 Tunnels are used): https://cloud.google.com/network-connectivity/docs/vpn/how-to/connect-ha-vpn-aws-peer-gateway#havpn-aws-peer
+  HA VPN Gateway interfaces are mapped in the following order to AWS S2S VPN Connections:
+  - HA VPN Gateway interfaces 0 -> AWS S2S VPN Connection 1 tunnel 1
+  - HA VPN Gateway interfaces 0 -> AWS S2S VPN Connection 1 tunnel 2
+  - HA VPN Gateway interfaces 1 -> AWS S2S VPN Connection 2 tunnel 1
+  - HA VPN Gateway interfaces 1 -> AWS S2S VPN Connection 2 tunnel 2
+  See here for further information: https://cloud.google.com/network-connectivity/docs/vpn/how-to/connect-ha-vpn-aws-peer-gateway#havpn-aws-peer
+  
   Cloud Router will dynamically provision routes to the dedicated VGW VPC; if there are 4 tunnels, it will provision 2 routes - 1 per Cloud VPN Gateway interface
   If 1 of the tunnels goes down, Cloud Router will dynamically provision a new route from the Cloud VPN Gateway interface where the tunnel went down - if tunnel-0 (running on interface 0) goes down, it'll be replaced by tunnel-1 (running on interface 0)
   If 2 tunnels go down on the same interface (attached to 1 Site-to-Site VPN), Cloud Router does not create an additional route on the healthy interface, e.g. if tunnel-0 and tunnel-1 (both running on interface 0) go down, and we have a route via tunnel-2 (running on interface 1), Cloud Router will not create an additional route via tunnel-3 (running on interface 1)
@@ -38,9 +44,10 @@ locals {
   }
 }
 
-### HA VPN
-## Set advertise_mode to "DEFAULT" as you are only connecting 1 VPC Network to AWS.
-## Set it to "CUSTOM" if connecting multiple networks. See here: https://cloud.google.com/network-connectivity/docs/router/how-to/advertising-custom-ip
+/*
+Set advertise_mode to "DEFAULT" as you are only connecting 1 VPC Network to AWS
+Set it to "CUSTOM" if connecting multiple networks; see here: https://cloud.google.com/network-connectivity/docs/router/how-to/advertising-custom-ip
+*/
 resource "google_compute_router" "this" {
   name    = "${local.project_name}-cloud-router"
   network = "default"
@@ -55,11 +62,10 @@ resource "google_compute_router" "this" {
 Achieving 99.99% availability: https://cloud.google.com/network-connectivity/docs/vpn/concepts/topologies#ensuring-ha-peer
 From GCP:
 "To meet the 99.99% availability SLA on the Google Cloud side, there must be a tunnel from each of the two interfaces on the HA VPN gateway to the corresponding interfaces on the peer gateway."
-As Customer Gateway can only specify 1 external IP (taken from 1 of the interface on the GCP-side), we need to create 2 Customer Gateways and 2 Site-to-Site VPNs to achieve 99.99% availability.
-VPN setup for in the live workspace: https://cloud.google.com/network-connectivity/docs/vpn/tutorials/create-ha-vpn-connections-google-cloud-aws 
+As Customer Gateway can only specify 1 external IP (taken from 1 of the interface on the GCP-side), you need to create 2 Customer Gateways and 2 Site-to-Site VPNs to achieve 99.99% availability
 
 "Configuring only one tunnel from a single HA VPN interface to a single interface on the peer gateway doesn't provide enough redundancy to meet the availability SLA because there is an unused interface on the HA VPN gateway, which does not have a tunnel configured on it."
-Therefore if you only configure one tunnel, you will not have 99.99% availability AND the unused tunnel in the Site-to-Site Connection will display as "Down"
+Therefore if you only configure one tunnel, you will not have 99.99% availability AND the unused tunnel in the Site-to-Site VPN Connection will display as "Down"
 */
 resource "google_compute_external_vpn_gateway" "this" {
   name            = "${local.project_name}-external-gateway"

@@ -28,10 +28,12 @@ resource "aws_customer_gateway" "objs" {
 }
 
 resource "aws_vpn_connection" "objs" {
-  for_each            = local.vpn_defs
-  customer_gateway_id = aws_customer_gateway.objs[each.key].id
-  vpn_gateway_id      = aws_vpn_gateway.this.id
-  type                = "ipsec.1"
+  for_each             = local.vpn_defs
+  customer_gateway_id  = aws_customer_gateway.objs[each.key].id
+  vpn_gateway_id       = aws_vpn_gateway.this.id
+  type                 = "ipsec.1"
+  tunnel1_ike_versions = "ikev2"
+  tunnel2_ike_versions = "ikev2"
   tags = {
     Name = each.value["vpn_connection_name"]
   }
