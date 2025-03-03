@@ -7,7 +7,7 @@ locals {
   - HA VPN Gateway interfaces 1 -> AWS S2S VPN Connection 2 tunnel 2
   See here for further information: https://cloud.google.com/network-connectivity/docs/vpn/how-to/connect-ha-vpn-aws-peer-gateway#havpn-aws-peer
   
-  Cloud Router will dynamically provision routes to the dedicated TGW ; if there are 4 tunnels, it will provision 4 routes - 2 to per Cloud VPN Gateway interface
+  Cloud Router will dynamically provision routes to the dedicated TGW; if there are 4 tunnels, it will provision 4 routes - 2 per Cloud VPN Gateway interface
   Cloud Router does not create a new route if a tunnel goes down. For example, if tunnel 0 goes down, then only routes going to tunnels 1, 2, and 3 will remain.
   */
   tunnels = {
@@ -43,7 +43,7 @@ locals {
 }
 
 /*
-Set advertise_mode to "DEFAULT" as you are only connecting 1 VPC Network to AWS
+Set advertise_mode to "DEFAULT" if you are only connecting 1 VPC Network to AWS
 Set it to "CUSTOM" if connecting multiple networks; see here: https://cloud.google.com/network-connectivity/docs/router/how-to/advertising-custom-ip
 */
 resource "google_compute_router" "this" {
